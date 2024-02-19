@@ -116,7 +116,6 @@
                                 </div>
                             </div>
                             @endforeach
-
                         </div>
                     </div>
                 </div>
@@ -152,11 +151,23 @@
                         </div>
                         <hr class="mt-5 mb-5">
                         <p>Total Harga: <span id="totalHarga" style="color: red;">Rp 0</span></p>
-                        <form id="submitForm" action="{{ route('proses-transaction') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="items" id="itemsInput">
-                            <button class="px-4 py-2 mt-20 bg-blue-500 text-white rounded" type="submit">Beli</button>
-                        </form>
+                        <div class="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between mt-10">
+                            <div>
+                                <label for="uang_diberikan">Uang Diberikan</label>
+                                <input type="number" name="uang_diberikan" id="uang_diberikan" class="mt-1">
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <div>
+                                    <label for="uang_kembalian">Uang Kembalian</label>
+                                    <input type="number" name="uang_kembalian" id="uang_kembalian" disabled class="mt-1">
+                                </div>
+                                <form id="submitForm" action="{{ route('proses-transaction') }}" method="POST" class="shrink-0">
+                                    @csrf
+                                    <input type="hidden" name="items" id="itemsInput">
+                                    <button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none" type="submit">Beli</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -210,16 +221,16 @@
             // Update total harga setelah menambahkan atau mengurangi
             if (existingItemIndex !== -1 || isAdding) {
                 addedItems.forEach(item => {
-    if (item.nama === nama) {
-        if (item.discount_percentage > 0) {
-            const discountAmount = item.harga * (item.discount_percentage / 100);
-            const discountedHarga = item.harga - discountAmount;
-            item.totalHarga = discountedHarga * item.quantity;
-        } else {
-            item.totalHarga = item.harga * item.quantity;
-        }
-    }
-});
+                    if (item.nama === nama) {
+                        if (item.discount_percentage > 0) {
+                            const discountAmount = item.harga * (item.discount_percentage / 100);
+                            const discountedHarga = item.harga - discountAmount;
+                            item.totalHarga = discountedHarga * item.quantity;
+                        } else {
+                            item.totalHarga = item.harga * item.quantity;
+                        }
+                    }
+                });
             }
             // Memperbarui daftar barang yang telah ditambahkan
             updateAddedItemsList();
@@ -231,7 +242,6 @@
             tableBody.innerHTML = '';
             let totalHarga = 0;
 
-            // Menambahkan setiap barang yang telah ditambahkan ke dalam tabel
             addedItems.forEach((item) => {
                 const row = document.createElement('tr');
 
@@ -252,13 +262,46 @@
                 row.appendChild(totalHargaCell);
 
                 tableBody.appendChild(row);
-
                 totalHarga += item.totalHarga;
             });
 
-            // Memperbarui total harga
             document.getElementById('totalHarga').textContent = `Rp ${totalHarga.toLocaleString()}`;
+
+            // Enable or disable the Uang Diberikan input based on the addedItems array
+            const uangDiberikanInput = document.getElementById('uang_diberikan');
+            if (addedItems.length > 0) {
+                uangDiberikanInput.disabled = false;
+            } else {
+                uangDiberikanInput.disabled = true;
+                document.getElementById('uang_kembalian').value = '';
+            }
         }
+
+        document.getElementById('uang_diberikan').addEventListener('input', function() {
+            const totalHarga = addedItems.reduce((acc, item) => acc + item.totalHarga, 0);
+            const uangDiberikan = parseInt(this.value, 10);
+            const uangKembalian = uangDiberikan - totalHarga;
+
+            if (!isNaN(uangKembalian)) {
+                document.getElementById('uang_kembalian').value = uangKembalian;
+            } else {
+                document.getElementById('uang_kembalian').value = '';
+            }
+        });
+
+        updateAddedItemsList();
+
+        document.getElementById('uang_diberikan').addEventListener('input', function() {
+            const totalHarga = addedItems.reduce((acc, item) => acc + item.totalHarga, 0);
+            const uangDiberikan = parseInt(this.value, 10);
+            const uangKembalian = uangDiberikan - totalHarga;
+
+            if (!isNaN(uangKembalian)) {
+                document.getElementById('uang_kembalian').value = uangKembalian;
+            } else {
+                document.getElementById('uang_kembalian').value = '';
+            }
+        });
 
         // Fungsi ini digunakan untuk mengosongkan semua item yang telah ditambahkan
         function clearAllItems() {
@@ -285,7 +328,18 @@
                     text: 'Your cart is empty. Please add items before proceeding.',
                 });
             } else {
-                document.getElementById('itemsInput').value = JSON.stringify(addedItems);
+                const uangDiberikan = document.getElementById('uang_diberikan').value;
+                if (!uangDiberikan || isNaN(uangDiberikan) || parseInt(uangDiberikan, 10) <= 0) {
+                    event.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Attention!',
+                        text: 'Please insert the Uang Diberikan input!',
+                    });
+                } else {
+                    // All checks passed, proceed with form submission
+                    document.getElementById('itemsInput').value = JSON.stringify(addedItems);
+                }
             }
         };
 
@@ -300,6 +354,4 @@
                 @endif
             });
     </script>
-
-
 </x-app-layout>
