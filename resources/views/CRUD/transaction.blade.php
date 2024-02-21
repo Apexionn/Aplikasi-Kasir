@@ -2,12 +2,17 @@
     <script src="https://kit.fontawesome.com/e0d812d232.js" crossorigin="anonymous"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        .relative-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
         .sold-out-overlay {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 60%;
+            right: 0;
+            bottom: 0;
             background-color: rgba(80, 78, 78, 0.5);
             color: white;
             font-size: 24px;
@@ -24,8 +29,10 @@
                 -1px  1px 0 #000,
                 1px  1px 0 #000;
         }
-        .relative-wrapper {
+        .image-wrapper {
+            display: inline-block;
             position: relative;
+            line-height: 0;
         }
 
         .search-bar-container {
@@ -72,6 +79,22 @@
             }
         }
 
+        .button-minus:not(:disabled) {
+            background-color: #f56565;
+        }
+
+        .button-minus:not(:disabled):hover {
+            background-color: #c53030;
+        }
+
+        .button-plus:not(:disabled) {
+            background-color: #4299e1;
+        }
+
+        .button-plus:not(:disabled):hover {
+            background-color: #2b6cb0;
+        }
+
 
         </style>
 
@@ -79,7 +102,7 @@
         <div class="max-w-8xl mx-auto sm:px-6 lg:px-8 flex flex-wrap">
             <!-- Items grid -->
             <div class="w-full lg:w-1/2">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" style="height: 580px; overflow-y: auto;">
+                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg" style="height: 580px; overflow-y: auto; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);">
                     <div class="p-8 text-gray-900">
                         <div class="search-bar-container">
                             <form action="{{ route('search-barang-transaction') }}" method="GET" class="search-bar-form">
@@ -93,11 +116,15 @@
                             @foreach ($barangData as $barang)
                             <div class="border rounded-lg p-4 text-center flex flex-col relative-wrapper" style="display: flex; flex-direction: column; height: 100%;">
                                 @if ($barang->stok == 0)
-                                <div class="sold-out-overlay">
-                                    Sold Out
+                                <div class="image-wrapper relative" style="line-height: 0;"> 
+                                    <div class="sold-out-overlay">
+                                        Sold Out
+                                    </div>
+                                    <img src="{{ asset($barang->image) }}" alt="Barang Image" class="w-52 h-64 object-cover mx-auto">
                                 </div>
+                                @else
+                                <img src="{{ asset($barang->image) }}" alt="Barang Image" class="w-52 h-64 object-cover mx-auto">
                                 @endif
-                                <img src="{{ asset($barang->image) }}" alt="Barang Image" class="w-52 h-64 object-cover mx-auto" style="flex-shrink: 0;">
                                 <div class="flex-grow flex flex-col justify-between">
                                     <h3 class="text-base mt-4">{{ $barang->nama_barang }}</h3>
                                     <div class="my-2">
@@ -111,8 +138,10 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <button onclick="tambahkanAtauKurangiBarang('{{ $barang->id_barang }}', '{{ $barang->nama_barang }}', {{ $barang->harga_diskon ?? $barang->harga }}, {{ $barang->stok }}, false)" class="px-4 py-2 text-white rounded ml-2 {{ $barang->stok == 0 ? 'bg-gray-500 disabled:opacity-50 cursor-not-allowed' : 'bg-red-500' }}" {{ $barang->stok == 0 ? 'disabled' : '' }}>-</button>
-                                    <button onclick="tambahkanAtauKurangiBarang('{{ $barang->id_barang }}', '{{ $barang->nama_barang }}', {{ $barang->harga_diskon ?? $barang->harga }}, {{ $barang->stok }}, true)" class="px-4 py-2 text-white rounded {{ $barang->stok == 0 ? 'bg-gray-500 disabled:opacity-50 cursor-not-allowed' : 'bg-blue-500' }}" {{ $barang->stok == 0 ? 'disabled' : '' }}>+</button>
+                                    <button onclick="tambahkanAtauKurangiBarang('{{ $barang->id_barang }}', '{{ $barang->nama_barang }}', {{ $barang->harga_diskon ?? $barang->harga }}, {{ $barang->stok }}, false)" class="px-4 py-2 text-white rounded ml-2 button-minus {{ $barang->stok == 0 ? 'bg-gray-500 disabled:opacity-50 cursor-not-allowed' : 'bg-blue-500' }}" {{ $barang->stok == 0 ? 'disabled' : '' }}>-</button>
+
+                                    <button onclick="tambahkanAtauKurangiBarang('{{ $barang->id_barang }}', '{{ $barang->nama_barang }}', {{ $barang->harga_diskon ?? $barang->harga }}, {{ $barang->stok }}, true)" class="px-4 py-2 text-white rounded button-plus {{ $barang->stok == 0 ? 'bg-gray-500 disabled:opacity-50 cursor-not-allowed' : 'bg-blue-500' }}"" {{ $barang->stok == 0 ? 'disabled' : '' }}>+</button>
+
                                 </div>
                             </div>
                             @endforeach
@@ -123,7 +152,7 @@
 
             <!-- Selected items list -->
             <div class="w-full lg:w-1/2 pl-4">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" style="height: 580px;">
+                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg" style="height: 580px; overflow-y: auto; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);">
                     <div class="p-8 text-gray-900">
                         <div class="flex justify-between items-center">
                             <h2 class="font-semibold text-lg">Barang Terpilih</h2>
@@ -329,6 +358,7 @@
                 });
             } else {
                 const uangDiberikan = document.getElementById('uang_diberikan').value;
+                const uangKembalian = document.getElementById('uang_kembalian').value;
                 if (!uangDiberikan || isNaN(uangDiberikan) || parseInt(uangDiberikan, 10) <= 0) {
                     event.preventDefault();
                     Swal.fire({
@@ -336,8 +366,14 @@
                         title: 'Attention!',
                         text: 'Please insert the Uang Diberikan input!',
                     });
+                } else if (uangKembalian < 0) {
+                    event.preventDefault();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Sorry, Your money isn\'t enough.',
+                        text: 'Please input it again!',
+                    });
                 } else {
-                    // All checks passed, proceed with form submission
                     document.getElementById('itemsInput').value = JSON.stringify(addedItems);
                 }
             }

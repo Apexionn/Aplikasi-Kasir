@@ -15,6 +15,7 @@ use App\Http\Controllers\DiskonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\DetailDiskonController;
+use App\Http\Controllers\DetailTransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,15 +61,13 @@ Route::get('/users', function () {
     return redirect('/transaction')->with('error', 'You are not authorized to view this page.');
 })->middleware(['auth', 'verified'])->name('users');
 
-// Route::get('/transaction', function () {
-//     $barangData = Barang::all();
-//     return view('CRUD.transaction', compact('barangData'));
-// })->middleware(['auth', 'verified'])->name('transaction');
-
 Route::get('/transaction', [TransactionController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('transaction');
 
+Route::get('/detail-transaction', [DetailTransactionController::class, 'showTransactions'])
+    ->middleware(['auth', 'verified'])
+    ->name('detail');
 
 Route::get('/diskon', [DiskonController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -142,3 +141,6 @@ Route::post('/delete-Genre/{id}', [GenreController::class, 'DeleteGenre'])->name
 // Transaction
 Route::post('/transaction/store', [TransactionController::class, 'store'])->name('proses-transaction');
 Route::get('/search-barang-transaction', [TransactionController::class, 'search'])->name('search-barang-transaction');
+
+// Download PDF
+Route::get('/download-pdf', [DetailTransactionController::class, 'downloadPdf'])->name('download-pdf');

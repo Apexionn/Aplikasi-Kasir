@@ -22,6 +22,11 @@ class Barang extends Model
         return $this->hasMany(Detail_Genre::class, 'id_barang');
     }
 
+    public function detailTransactions()
+{
+    return $this->hasMany(DetailTransaction::class, 'id_barang');
+}
+
     public function genre() {
         return $this->belongsTo(Genre::class, 'id_genre');
     }

@@ -107,21 +107,17 @@ class BarangController extends Controller
     }
 
 
-    public function DeleteBarang($id){
+    public function DeleteBarang($id)
+    {
         $barang = Barang::with('detailGenres')->find($id);
 
-        if ($barang) {
-            // Delete the related detail_genre records
-            $barang->detailGenres()->delete();
-
-            // Now, delete the Barang itself
-            $barang->delete();
-
-            return back()->with('success','Data berhasil dihapus!');
+        if ($barang->detailGenres->isNotEmpty() || $barang->detailTransactions->isNotEnpty()) {
+            return back()->withErrors('Cannot delete this barang because it has associated detail genres or transactions.');
         }
 
-        // Optionally, handle the case where Barang is not found
-        return back()->with('error', 'Barang not found.');
+        $barang->delete();
 
+        return back()->with('success','Barang berhasil dihapus!');
     }
+
 }

@@ -21,6 +21,15 @@
                     </div>
 
                     <a href="{{ route('add-barang-page') }}" class="btn btn-primary" style="margin-bottom: 20px;">Add Barang</a>
+                    @if($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <table class="table table-bordered text-center">
                         <thead>
                             <tr>

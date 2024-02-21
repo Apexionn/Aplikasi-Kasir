@@ -20,6 +20,11 @@ class User extends Authenticatable
 
     protected $guarded = ['id'];
 
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'id_user');
+    }
+    
     // protected $fillable = [
     //     'name',
     //     'email',

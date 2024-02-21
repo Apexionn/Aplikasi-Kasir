@@ -20,6 +20,11 @@ class Genre extends Model
         return $this->hasMany(Barang::class, 'id_genre');
     }
 
+    public function barangs2()
+{
+    return $this->belongsToMany(Barang::class, 'detail_genre', 'id_genre', 'id_barang');
+}
+
     public function diskons()
     {
         return $this->belongsToMany(Diskon::class, 'detail_diskon', 'id_genre', 'id_diskon');

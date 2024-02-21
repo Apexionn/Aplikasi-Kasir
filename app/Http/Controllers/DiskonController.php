@@ -46,11 +46,32 @@ class DiskonController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'persentase' => 'required',
-            'awal' => 'required',
-            'akhir' => 'required'
-        ]);
+            'persentase' => 'required|numeric',
+            'awal' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) use ($request) {
+                    // Check if the tanggal_mulai is unique and not overlapping with existing date ranges
+                    $overlapping = Diskon::where(function ($query) use ($value, $request) {
+                        $query->where('tanggal_mulai', '<=', $value)
+                              ->where('tanggal_akhir', '>=', $value);
+                    })->orWhere(function ($query) use ($request) {
+                        $query->where('tanggal_mulai', '<=', $request->input('akhir'))
+                              ->where('tanggal_akhir', '>=', $request->input('akhir'));
+                    })->exists();
 
+                    if ($overlapping) {
+                        $fail('The ' . $attribute . ' overlaps with another discount period.');
+                    }
+                },
+            ],
+            'akhir' => [
+                'required',
+                'date',
+                'after:awal',
+            ],
+        ]);
+        
         Diskon::create([
             'nama_diskon' => $request->input('name'),
             'persentase_diskon' => $request->input('persentase'),

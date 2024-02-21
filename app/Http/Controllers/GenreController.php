@@ -46,6 +46,9 @@ class GenreController extends Controller
 
     public function DeleteGenre($id){
         $barang = Genre::find($id);
+        if ($barang->barangs2->isNotEmpty()) {
+            return back()->withErrors('Cannot delete this genre because it has related data from barang.');
+        }
         $barang->delete();
         return back()->with('success','Data berhasil dihapus!');
     }

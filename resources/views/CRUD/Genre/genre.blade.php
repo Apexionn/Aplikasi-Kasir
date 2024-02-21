@@ -7,6 +7,15 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <a href="{{ route('add-genre-page') }}" class="btn btn-primary" style="margin-bottom: 20px;">Add Genre</a>
+                    @if($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <table class="table table-bordered text-center">
                         <thead>
                             <tr>
@@ -29,7 +38,7 @@
                                             </form>
                                             <form action="{{ route('delete-genre', ['id' => $genre->id_genre]) }}" method="POST">
                                                 @csrf
-                                                <button type="submit" class="btn btn-danger ml-2" style="background-color: #FF0000; color: #fff;" onclick="return confirm('Are you sure?')">Delete</button>
+                                                <button type="submit" class="btn btn-danger ml-2" style="background-color: #FF0000; color: #fff;">Delete</button>
                                             </form>
                                         </div>
                                     </td>
@@ -45,6 +54,7 @@
             </div>
         </div>
     </div>
+
 
 </x-app-layout>
 

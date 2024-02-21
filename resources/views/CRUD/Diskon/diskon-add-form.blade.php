@@ -22,7 +22,7 @@
 
                         <div class="form-group">
                             <label for="name">Persentase Diskon:</label>
-                            <input type="text" class="form-control" id="persentase" name="persentase" placeholder="Persentase Diskon" required>
+                            <input type="number" class="form-control" id="persentase" name="persentase" placeholder="Persentase Diskon" max="100" min="1" required>
                         </div>
 
                         <div class="form-group">
@@ -34,7 +34,15 @@
                             <label for="name">Tanggal Akhir:</label>
                             <input type="date" class="form-control" id="akhir" name="akhir" required>
                         </div>
-
+                        @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                         <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff;">Tambah</button>
                     </form>
                 </div>

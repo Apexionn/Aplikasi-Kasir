@@ -12,36 +12,40 @@ use Illuminate\Support\Facades\Auth;
 class TransactionController extends Controller
 {
 
-    public function index(Request $request) {
-        $currentDate = date('Y-m-d');
+public function index(Request $request) {
+    $currentDate = date('Y-m-d');
+    // Mengambil semua data barang dengan 'eager loading' untuk genre. Eager loading mengurangi jumlah query yang dibutuhkan untuk mengambil relasi
+    $barangData = Barang::with(['genres' => function ($query) use ($currentDate) {
+        // Untuk setiap genre, kita juga melakukan eager loading untuk diskon yang berlaku pada tanggal saat ini
+        $query->with(['diskons' => function ($subQuery) use ($currentDate) {
+            $subQuery->where('tanggal_mulai', '<=', $currentDate) // Diskon dimulai sebelum atau sama dengan tanggal saat ini
+                    ->where('tanggal_akhir', '>=', $currentDate); // dan berakhir setelah atau sama dengan tanggal saat ini
+        }]);
+    }])->get();
 
-        // Fetch all barang data with eager loading for genres
-        $barangData = Barang::with(['genres' => function ($query) use ($currentDate) {
-            $query->with(['diskons' => function ($subQuery) use ($currentDate) {
-                $subQuery->where('tanggal_mulai', '<=', $currentDate)
-                        ->where('tanggal_akhir', '>=', $currentDate);
-            }]);
-        }])->get();
+    // Iterasi melalui setiap data barang untuk menghitung harga diskon jika ada
+    foreach ($barangData as $barang) {
+        // Inisialisasi harga_diskon dengan harga asli barang
+        $barang->harga_diskon = $barang->harga;
 
-        // Iterate over barangData to calculate discounted prices if applicable
-        foreach ($barangData as $barang) {
-            // Initialize harga_diskon with the original harga
-            $barang->harga_diskon = $barang->harga;
+        // Mencari diskon yang berlaku
+        $applicableDiscount = $barang->findApplicableDiscount();
 
-            $applicableDiscount = $barang->findApplicableDiscount();
+        // Memeriksa apakah ada diskon yang berlaku
+        if ($applicableDiscount) {
+            // Menghapus simbol '%' dari persentase diskon dan konversi ke nilai numerik
+            $persentase_diskon = rtrim($applicableDiscount->persentase_diskon, '%');
+            $persentase_diskon = (float)$persentase_diskon / 100; // Mengubah persentase menjadi pecahan
 
-            // Check if there is an applicable discount
-            if ($applicableDiscount) {
-                // Remove the '%' symbol and convert to a numeric value if necessary
-                $persentase_diskon = rtrim($applicableDiscount->persentase_diskon, '%');
-                $persentase_diskon = (float)$persentase_diskon / 100; // Convert to a fraction
-
-                $barang->harga_diskon -= $barang->harga * $persentase_diskon;
-            }
+            // Menghitung harga setelah diskon dan memperbarui harga_diskon pada barang
+            $barang->harga_diskon -= $barang->harga * $persentase_diskon;
         }
-
-        return view('CRUD.transaction', compact('barangData'));
     }
+
+    // Mengembalikan view 'CRUD.transaction' dengan data barang yang sudah diolah
+    return view('CRUD.transaction', compact('barangData'));
+}
+
 
 
     public function store(Request $request)
