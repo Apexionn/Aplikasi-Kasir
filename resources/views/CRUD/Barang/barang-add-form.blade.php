@@ -34,11 +34,6 @@
                             <input type="number" class="form-control" id="stok" name="stok" placeholder="Stok" min="0" max="1000" required>
                         </div>
 
-                        {{-- <div class="form-group">
-                            <label for="foto_barang">Foto Barang:</label>
-                            <input type="file" class="form-control" name="image">
-                        </div> --}}
-
                         <div class="form-group">
                             <label for="foto_barang">Foto Barang:</label>
                             <input type="file" class="form-control" name="image_varchar">

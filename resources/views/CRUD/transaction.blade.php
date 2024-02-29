@@ -95,6 +95,13 @@
             background-color: #2b6cb0;
         }
 
+        .sticky-search-bar {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: white;
+        }
 
         </style>
 
@@ -104,19 +111,19 @@
             <div class="w-full lg:w-1/2">
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg" style="height: 580px; overflow-y: auto; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);">
                     <div class="p-8 text-gray-900">
-                        <div class="search-bar-container">
+                        <div class="search-bar-container sticky-search-bar">
                             <form action="{{ route('search-barang-transaction') }}" method="GET" class="search-bar-form">
-                                <input type="text" class="form-control search-input" placeholder="Search for Barang..." name="search" value="{{ request()->query('search') }}">
+                                <input autocomplete="off" type="text" class="form-control search-input sticky" placeholder="Search for Barang..." name="search" value="{{ request()->query('search') }}">
                                 <button class="search-button" type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </form>
                         </div>
                         <div class="mt-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-2 gap-4">
-                            @foreach ($barangData as $barang)
+                            @forelse ($barangData as $barang)
                             <div class="border rounded-lg p-4 text-center flex flex-col relative-wrapper" style="display: flex; flex-direction: column; height: 100%;">
                                 @if ($barang->stok == 0)
-                                <div class="image-wrapper relative" style="line-height: 0;"> 
+                                <div class="image-wrapper relative" style="line-height: 0;">
                                     <div class="sold-out-overlay">
                                         Sold Out
                                     </div>
@@ -139,12 +146,15 @@
                                 </div>
                                 <div>
                                     <button onclick="tambahkanAtauKurangiBarang('{{ $barang->id_barang }}', '{{ $barang->nama_barang }}', {{ $barang->harga_diskon ?? $barang->harga }}, {{ $barang->stok }}, false)" class="px-4 py-2 text-white rounded ml-2 button-minus {{ $barang->stok == 0 ? 'bg-gray-500 disabled:opacity-50 cursor-not-allowed' : 'bg-blue-500' }}" {{ $barang->stok == 0 ? 'disabled' : '' }}>-</button>
-
                                     <button onclick="tambahkanAtauKurangiBarang('{{ $barang->id_barang }}', '{{ $barang->nama_barang }}', {{ $barang->harga_diskon ?? $barang->harga }}, {{ $barang->stok }}, true)" class="px-4 py-2 text-white rounded button-plus {{ $barang->stok == 0 ? 'bg-gray-500 disabled:opacity-50 cursor-not-allowed' : 'bg-blue-500' }}"" {{ $barang->stok == 0 ? 'disabled' : '' }}>+</button>
-
                                 </div>
                             </div>
-                            @endforeach
+                            @empty
+                            <div class="col-span-1 md:col-span-3 lg:col-span-2 mt-20" style="display: flex; justify-content: center; align-items: center; flex-direction: column; height: 200px;">
+                                <img src="{{ asset('IMG/nodata.jpeg') }}" style="max-width: 100%; max-height: 100px; margin-bottom: 10px;">
+                                <span>No Data Found!</span>
+                            </div>
+                        @endforelse
                         </div>
                     </div>
                 </div>
@@ -183,7 +193,7 @@
                         <div class="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between mt-10">
                             <div>
                                 <label for="uang_diberikan">Uang Diberikan</label>
-                                <input type="number" name="uang_diberikan" id="uang_diberikan" class="mt-1">
+                                <input type="number" name="uang_diberikan" id="uang_diberikan" class="mt-1" min="0">
                             </div>
                             <div class="flex items-center space-x-4">
                                 <div>
@@ -205,6 +215,19 @@
 
     <script>
         let addedItems = [];
+
+        function calculateChange() {
+            const totalHarga = addedItems.reduce((acc, item) => acc + item.totalHarga, 0);
+            const uangDiberikanInput = document.getElementById('uang_diberikan');
+            const uangDiberikan = parseInt(uangDiberikanInput.value, 10);
+            const uangKembalian = uangDiberikan - totalHarga;
+
+            if (!isNaN(uangKembalian) && uangKembalian >= 0) {
+                document.getElementById('uang_kembalian').value = uangKembalian;
+            } else {
+                document.getElementById('uang_kembalian').value = '';
+            }
+        }
 
         // Fungsi ini digunakan untuk menambahkan atau mengurangi barang ke dalam keranjang
         function tambahkanAtauKurangiBarang(id, nama, harga, stok, isAdding) {
@@ -261,8 +284,13 @@
                     }
                 });
             }
-            // Memperbarui daftar barang yang telah ditambahkan
+
+            document.getElementById('uang_diberikan').value = '';
+            document.getElementById('uang_kembalian').value = '';
+
             updateAddedItemsList();
+            calculateChange();
+
         }
 
         // Fungsi ini digunakan untuk memperbarui tampilan daftar barang yang telah ditambahkan
@@ -304,9 +332,12 @@
                 uangDiberikanInput.disabled = true;
                 document.getElementById('uang_kembalian').value = '';
             }
+            calculateChange();
+
         }
 
         document.getElementById('uang_diberikan').addEventListener('input', function() {
+            calculateChange();
             const totalHarga = addedItems.reduce((acc, item) => acc + item.totalHarga, 0);
             const uangDiberikan = parseInt(this.value, 10);
             const uangKembalian = uangDiberikan - totalHarga;
@@ -319,18 +350,6 @@
         });
 
         updateAddedItemsList();
-
-        document.getElementById('uang_diberikan').addEventListener('input', function() {
-            const totalHarga = addedItems.reduce((acc, item) => acc + item.totalHarga, 0);
-            const uangDiberikan = parseInt(this.value, 10);
-            const uangKembalian = uangDiberikan - totalHarga;
-
-            if (!isNaN(uangKembalian)) {
-                document.getElementById('uang_kembalian').value = uangKembalian;
-            } else {
-                document.getElementById('uang_kembalian').value = '';
-            }
-        });
 
         // Fungsi ini digunakan untuk mengosongkan semua item yang telah ditambahkan
         function clearAllItems() {
@@ -381,13 +400,19 @@
 
         // Menampilkan pesan sukses jika ada setelah DOM dimuat
         document.addEventListener('DOMContentLoaded', function () {
-                @if(session('success'))
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Completed!',
-                        text: '{{ session('success') }}',
-                    });
-                @endif
-            });
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Completed!',
+            text: '{{ session('success') }}',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            if (result.value) {
+                window.location.href = '/nota'; 
+            }
+        });
+    @endif
+});
+
     </script>
 </x-app-layout>

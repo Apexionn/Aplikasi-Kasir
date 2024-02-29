@@ -82,7 +82,7 @@ class BarangController extends Controller
             'stok' => 'required',
             'image_varchar' => 'sometimes|image|mimes:png,jpg,jpeg',
             'harga' => 'required',
-            'genres' => 'required|array',
+            'genres' => 'sometimes|array',
         ]);
 
         $barang = Barang::find($id);
@@ -111,7 +111,7 @@ class BarangController extends Controller
     {
         $barang = Barang::with('detailGenres')->find($id);
 
-        if ($barang->detailGenres->isNotEmpty() || $barang->detailTransactions->isNotEnpty()) {
+        if ($barang->detailGenres->isNotEmpty() || $barang->detailTransactions->isNotEmpty()) {
             return back()->withErrors('Cannot delete this barang because it has associated detail genres or transactions.');
         }
 

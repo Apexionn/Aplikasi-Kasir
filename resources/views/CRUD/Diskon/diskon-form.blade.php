@@ -22,7 +22,7 @@
 
                         <div class="form-group">
                             <label for="name">Persentase Diskon:</label>
-                            <input type="text" class="form-control" id="persentase" name="persentase" value="{{ $diskon->persentase_diskon }}" required>
+                            <input type="text" class="form-control" id="persentase" name="persentase" value="{{ $diskon->persentase_diskon }}" min="0" max="90" required>
                         </div>
 
                         <div class="form-group">
@@ -33,6 +33,17 @@
                         <div class="form-group">
                             <label for="name">Tanggal Akhir:</label>
                             <input type="date" class="form-control" id="akhir" name="akhir" value="{{ $diskon->tanggal_akhir }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Genres:</label><br>
+                            @foreach($genres as $genre)
+                                <div class="form-check form-check-inline mb-3">
+                                    <input class="form-check-input" type="checkbox" name="genres[]" id="genre_{{ $genre->id_genre }}" value="{{ $genre->id_genre }}"
+                                    @if($diskon->genres->contains($genre->id_genre)) checked @endif>
+                                    <label class="form-check-label" for="genre_{{ $genre->id_genre }}">{{ $genre->nama_genre }}</label>
+                                </div>
+                            @endforeach
                         </div>
 
                         @if ($errors->any())

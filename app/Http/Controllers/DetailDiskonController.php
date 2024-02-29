@@ -9,6 +9,43 @@ use Illuminate\Http\Request;
 
 class DetailDiskonController extends Controller
 {
+    public function index()
+    {
+        $data = DetailDiskon::with(['diskon', 'genre'])
+            ->get()
+            ->groupBy('id_diskon')
+            ->map(function ($group) {
+                return [
+                    'id' => $group->first()->id_diskon,
+                    'nama_diskon' => $group->first()->diskon->nama_diskon,
+                    'genres' => $group->pluck('genre.nama_genre')->join(', '),
+                ];
+            });
+
+        return view('CRUD.DetailDiskon.detail-diskon', compact('data'));
+    }
+
+    public function show($id)
+    {
+        $diskon = Diskon::with('genres2')->find($id);
+
+        if (!$diskon) {
+            return redirect()->route('detaildiskon')->with('error', 'Diskon not found.');
+        }
+
+        $data = [
+            'id_diskon' => $diskon->id_diskon,
+            'nama_diskon' => $diskon->nama_diskon,
+            'persentase_diskon' => $diskon->persentase_diskon,
+            'tanggal_awal' => $diskon->tanggal_awal,
+            'tanggal_akhir' => $diskon->tanggal_akhir,
+            'genres' => $diskon->genres->pluck('nama_genre')->all(), 
+        ];
+
+        return view('CRUD.Diskon.detail-diskon', compact('data'));
+    }
+
+
 
     public function AddDetailDiskonPage(){
         $diskon = Diskon::all();

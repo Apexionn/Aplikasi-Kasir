@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://kit.fontawesome.com/e0d812d232.js" crossorigin="anonymous"></script>
 <x-app-layout>
 
     <div class="py-12">
@@ -20,7 +21,16 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('add-users-page') }}" class="btn btn-primary" style="margin-bottom: 20px;">Add Users</a>
+                    <a href="{{ route('add-users-page') }}" class="btn btn-primary" style="margin-bottom: 20px;"><i class="fa-solid fa-plus" style="color: #ffffff;"></i> &nbsp; Add Users</a>
+                    @if($errors->any())
+                    <div class="alert alert-danger">
+                        <ul>
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
                     <table class="table table-bordered text-center">
                         <thead>
                             <tr>
@@ -45,24 +55,62 @@
                                         <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px;">
                                             <form action="{{ route('edit-users', ['id' => $user->id]) }}" method="GET">
                                                 @csrf
-                                                <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff;">Edit</button>
+                                                <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff;"><i class="fa-solid fa-pen-to-square" style="color: #ffffff;"></i></button>
                                             </form>
                                             <form action="{{ route('delete-users', ['id' => $user->id]) }}" method="POST">
                                                 @csrf
-                                                <button type="submit" class="btn btn-danger ml-2" style="background-color: #FF0000; color: #fff;">Delete</button>
+                                                <button type="submit" class="btn btn-danger ml-2" style="background-color: #FF0000; color: #fff;"><i class="fa-solid fa-trash" style="color: #ffffff;"></i></button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
+                            @if($data->isEmpty())
+                                <tr>
+                                    <td colspan="5">
+                                        <div style="display: flex; justify-content: center; align-items: center; flex-direction: column; height: 200px;">
+                                            <img src="{{ asset('IMG/nodata.jpeg') }}" style="max-width: 100%; max-height: 100px; margin-bottom: 10px;">
+                                            No Data Found!
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
+
                 </div>
             </div>
         </div>
     </div>
 
+<script>
+                document.addEventListener('DOMContentLoaded', function () {
+                @if(session('success'))
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.onmouseenter = Swal.stopTimer;
+                        toast.onmouseleave = Swal.resumeTimer;
+                    }
+                });
+                let message = "{{ session('success') }}";
+                    if ("{{ session('status') }}" === "added") {
+                        message = "Data Added Successfully";
+                    } else if ("{{ session('status') }}" === "updated") {
+                        message = "Data Updated Successfully";
+                    }
 
+                    Toast.fire({
+                        icon: "success",
+                        title: message
+                    });
+                @endif
+            });
+</script>
 
 </x-app-layout>
 

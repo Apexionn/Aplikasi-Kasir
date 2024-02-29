@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Models\DetailTransaction;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use PDF;
 
 class TransactionController extends Controller
 {
@@ -47,32 +49,56 @@ public function index(Request $request) {
 }
 
 
+public function store(Request $request)
+{
+    $items = json_decode($request->items, true);
 
-    public function store(Request $request)
-    {
-        $items = json_decode($request->items, true);
+    $transaction = Transaction::create([
+        'id_users' => Auth::id(),
+        'tanggal_transaksi' => now(),
+    ]);
 
-        $transaction = Transaction::create([
-            'id_users' => Auth::id(),
-            'tanggal_transaksi' => now(),
+    $addedItemsWithNames = [];
+
+    foreach ($items as $item) {
+        DetailTransaction::create([
+            'id_transaction' => $transaction->id_transaction,
+            'id_barang' => $item['id'],
+            'quantity' => $item['quantity'],
+            'harga_jual' => $item['harga'],
         ]);
 
-        foreach ($items as $item) {
-            DetailTransaction::create([
-                'id_transaction' => $transaction->id_transaction,
-                'id_barang' => $item['id'],
+        $barang = Barang::find($item['id']);
+        if ($barang) {
+            $barang->decrement('stok', $item['quantity']);
+
+
+            $originalPrice = $barang->harga;
+            $discountAmount = $originalPrice - $item['harga'];
+
+            $addedItemsWithNames[] = [
+                'name' => $barang->nama_barang,
                 'quantity' => $item['quantity'],
-                'harga_jual' => $item['harga'],
-            ]);
-
-            $barang = Barang::find($item['id']);
-            if ($barang) {
-                $barang->decrement('stok', $item['quantity']);
-            }
+                'harga' => $item['harga'],
+                'original_price' => $originalPrice,
+                'discount_amount' => $discountAmount,
+            ];
         }
-
-        return redirect()->route('transaction')->with('success', 'Transaction successful!');
     }
+
+    $totalHarga = array_sum(array_column($addedItemsWithNames, 'harga', 'quantity'));
+
+    $userName = Auth::user()->name;
+    $tanggalTransaksi = $transaction->tanggal_transaksi->format('d-m-Y');
+
+    Session::put('totalHarga', $totalHarga);
+    Session::put('addedItems', $addedItemsWithNames);
+    Session::put('userName', $userName);
+    Session::put('tanggalTransaksi', $tanggalTransaksi);
+
+    return redirect()->route('nota')->with('success', 'Transaction successful!');
+}
+
 
     public function search(Request $request)
     {
@@ -87,5 +113,12 @@ public function index(Request $request) {
         }
 
         return view('CRUD.transaction', compact('barangData'));
+    }
+
+    public function downloadPdf() {
+        $items = session('addedItems');
+        $totalHarga = session('totalHarga');
+        $pdf = PDF::loadView('CRUD.nota-pdf', compact('items', 'totalHarga'));
+        return $pdf->download('invoice.pdf');
     }
 }

@@ -10,6 +10,7 @@
                         <img src="{{ asset('IMG/Logo.png') }}" class="block h-9 w-auto fill-current text-gray-800">
                     </a>
                 </div>
+                @if (Auth::user()->role == 'Kasir')
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -19,26 +20,12 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('diskon')" :active="request()->routeIs('diskon')">
-                        {{ __('Data Diskon') }}
-                    </x-nav-link>
-                </div>
-
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('detaildiskon')" :active="request()->routeIs('detaildiskon')">
-                        {{ __('Data Detail Diskon') }}
-                    </x-nav-link>
-                </div>
-
-
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('detail')" :active="request()->routeIs('detail')">
                         {{ __('Laporan Transaksi') }}
                     </x-nav-link>
                 </div>
 
-
-                @if(Auth::user()->role == 'Admin')
+                @elseif(Auth::user()->role == 'Admin')
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('games')" :active="request()->routeIs('games')">
@@ -46,6 +33,12 @@
                     </x-nav-link>
                 </div>
 
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('diskon')" :active="request()->routeIs('diskon')">
+                        {{ __('Data Diskon') }}
+                    </x-nav-link>
+                </div>
+                
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('genre')" :active="request()->routeIs('genre')">
                         {{ __('Data Genre') }}

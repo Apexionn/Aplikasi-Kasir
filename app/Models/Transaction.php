@@ -11,8 +11,6 @@ class Transaction extends Model
 
     protected $guarded = ['id_transaction'];
 
-    // protected $fillable = ['id_users', 'tanggal_transaksi'];
-    // public $incrementing = true;
     protected $table = "Transaction";
     protected $primaryKey = 'id_transaction';
     public $timestamps = false;

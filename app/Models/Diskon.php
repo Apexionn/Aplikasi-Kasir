@@ -20,5 +20,14 @@ class Diskon extends Model
         return $this->belongsToMany(Genre::class, 'detail_diskon', 'id_diskon', 'id_genre');
     }
 
+    public function genre()
+    {
+        return $this->belongsTo(Genre::class, 'id_genre');
+    }
+
+    public function detailDiskons()
+    {
+        return $this->hasMany(DetailDiskon::class, 'id_diskon', 'id_diskon');
+    }
 
 }

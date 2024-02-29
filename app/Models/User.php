@@ -22,9 +22,9 @@ class User extends Authenticatable
 
     public function transactions()
     {
-        return $this->hasMany(Transaction::class, 'id_user');
+        return $this->hasMany(Transaction::class, 'id_users');
     }
-    
+
     // protected $fillable = [
     //     'name',
     //     'email',

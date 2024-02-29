@@ -29,13 +29,19 @@ use App\Http\Controllers\DetailTransactionController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('Auth.login');
 });
 
-Route::get('/tes', function () {
-    return view('tesphp');
-});
+// Route::get('/nota', function () {
+//     return view('CRUD.nota');
+// });
 
+Route::get('/nota', function () {
+    $addedItems = session('addedItems', []);
+    return view('CRUD.nota', compact('addedItems'));
+})->name('nota');
+
+Route::get('/download-pdf-nota', [TransactionController::class, 'downloadPdf'])->name('downloadPdfNota');
 
 Route::get('/barang', function () {
     if (Auth::check() && Auth::user()->role == 'Admin') {
@@ -73,20 +79,9 @@ Route::get('/diskon', [DiskonController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('diskon');
 
-Route::get('/diskon-genre', function () {
-    $data = DetailDiskon::with(['diskon', 'genre'])
-        ->get()
-        ->groupBy('id_diskon')
-        ->map(function ($group) {
-            return [
-                'id' => $group->first()->id_diskon,
-                'nama_diskon' => $group->first()->diskon->nama_diskon,
-                'genres' => $group->pluck('genre.nama_genre')->join(', '),
-            ];
-        });
-
-    return view('CRUD.DetailDiskon.detail-diskon', compact('data'));
-})->middleware(['auth', 'verified'])->name('detaildiskon');
+    Route::get('/diskon-genre', [DetailDiskonController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('detaildiskon');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -105,11 +100,11 @@ Route::post('/proses-edit-diskon/{id}', [DiskonController::class, 'ProsesUpdate'
 Route::post('/delete-diskon/{id}', [DiskonController::class, 'DeleteDiskon'])->name('delete-diskon');
 
 // Detail Diskon
-Route::get('/form-add-detail-diskon', [DetailDiskonController::class, 'AddDetailDiskonPage'])->name('add-detail-diskon-page');
-Route::post('/proses-tambah-detail-diskon', [DetailDiskonController::class, 'ProsesTambah'])->name('proses-tambah-detail-diskon');
-Route::get('/form-edit-detail-diskon/{id}', [DetailDiskonController::class, 'EditDetailDiskonPage'])->name('edit-detail-diskon');
-Route::post('/proses-edit-detail-diskon/{id}', [DetailDiskonController::class, 'ProsesUpdate'])->name('proses-edit-detail-diskon');
-Route::post('/delete-detail-diskon/{id}', [DetailDiskonController::class, 'DeleteDetailDiskon'])->name('delete-detail-diskon');
+// Route::get('/form-add-detail-diskon', [DetailDiskonController::class, 'AddDetailDiskonPage'])->name('add-detail-diskon-page');
+// Route::post('/proses-tambah-detail-diskon', [DetailDiskonController::class, 'ProsesTambah'])->name('proses-tambah-detail-diskon');
+// Route::get('/form-edit-detail-diskon/{id}', [DetailDiskonController::class, 'EditDetailDiskonPage'])->name('edit-detail-diskon');
+// Route::post('/proses-edit-detail-diskon/{id}', [DetailDiskonController::class, 'ProsesUpdate'])->name('proses-edit-detail-diskon');
+// Route::post('/delete-detail-diskon/{id}', [DetailDiskonController::class, 'DeleteDetailDiskon'])->name('delete-detail-diskon');
 
 
 // Users

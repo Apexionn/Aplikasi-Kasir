@@ -21,7 +21,7 @@ class GenreController extends Controller
             'nama_genre' => $request->input('name'),
         ]);
 
-        return redirect()->route('genre')->with('success', 'Genre data added successfully!');
+        return redirect()->route('genre')->with('success', 'Genre data added successfully!')->with('status', 'added');
     }
 
     public function EditGenrePage($id){
@@ -41,7 +41,7 @@ class GenreController extends Controller
 
         $genre->save();
 
-        return redirect()->route('genre')->with('success', 'Genre data updated successfully!');
+        return redirect()->route('genre')->with('success', 'Genre data updated successfully!')->with('status', 'updated');
     }
 
     public function DeleteGenre($id){

@@ -1,12 +1,14 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://kit.fontawesome.com/e0d812d232.js" crossorigin="anonymous"></script>
+
 <x-app-layout>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <a href="{{ route('add-detail-diskon-page') }}" class="btn btn-primary" style="margin-bottom: 20px;">Add Diskon</a>
+                    <a href="{{ route('add-detail-diskon-page') }}" class="btn btn-primary" style="margin-bottom: 20px;"><i class="fa-solid fa-plus" style="color: #ffffff;"></i> &nbsp;Add Diskon</a>
                     <table class="table table-bordered text-center">
                         <thead>
                             <tr>
@@ -29,11 +31,11 @@
                                         <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px;">
                                             <form action="{{ route('edit-detail-diskon', ['id' => $diskon['id']]) }}" method="GET">
                                                 @csrf
-                                                <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff;">Edit</button>
+                                                <button type="submit" class="btn btn-primary" style="background-color: #007bff; color: #fff;"><i class="fa-solid fa-pen-to-square" style="color: #ffffff;"></i></button>
                                             </form>
                                             <form action="{{ route('delete-detail-diskon', ['id' => $diskon['id']]) }}" method="POST">
                                                 @csrf
-                                                <button type="submit" class="btn btn-danger ml-2" style="background-color: #FF0000; color: #fff;" onclick="return confirm('Are you sure?')">Delete</button>
+                                                <button type="submit" class="btn btn-danger ml-2" style="background-color: #FF0000; color: #fff;"><i class="fa-solid fa-trash" style="color: #ffffff;"></i></button>
                                             </form>
                                         </div>
                                     </td>

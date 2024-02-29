@@ -6,17 +6,18 @@ use App\Models\DetailTransaction;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use PDF;
-// use Barryvdh\DomPDF\Facade as PDF;
-
 
 class DetailTransactionController extends Controller
 {
-        public function showTransactions()
+    public function showTransactions()
     {
-        $data = DetailTransaction::with(['barang', 'transaction.user'])->get();
+        $data = DetailTransaction::with(['barang', 'transaction.user'])
+                ->orderBy('id_transaction', 'desc')
+                ->get();
 
         return view('CRUD.transaction-detail', compact('data'));
     }
+
 
     public function downloadPdf()
     {

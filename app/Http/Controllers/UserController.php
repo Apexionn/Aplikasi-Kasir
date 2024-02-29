@@ -22,7 +22,7 @@ class UserController extends Controller
             $data = User::all();
         }
 
-        return view('CRUD.users', compact('data'));
+        return view('CRUD.Users.users', compact('data'));
     }
 
         public function AddUserPage(){
@@ -47,7 +47,7 @@ class UserController extends Controller
             'role' => $request->input('role'),
         ]);
 
-        return redirect()->route('users')->with('success', 'Users data added successfully!');
+        return redirect()->route('users')->with('success', 'Users data added successfully!')->with('status', 'added');
     }
 
     public function EditUserPage($id){
@@ -75,11 +75,16 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->route('users')->with('success', 'Petugas data updated successfully!');
+        return redirect()->route('users')->with('success', 'Petugas data updated successfully!')->with('status', 'updated');
     }
 
     public function DeleteUsers($id){
         $user = User::find($id);
+
+        if ($user->transactions->isNotEmpty()) {
+            return back()->withErrors('Cannot delete this user because it has associated with transactions.');
+        }
+
         $user->delete();
         return back()->with('success','Data berhasil dihapus!');
     }

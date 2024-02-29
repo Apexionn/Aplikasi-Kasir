@@ -22,7 +22,7 @@
 
                         <div class="form-group">
                             <label for="name">Persentase Diskon:</label>
-                            <input type="number" class="form-control" id="persentase" name="persentase" placeholder="Persentase Diskon" max="100" min="1" required>
+                            <input type="number" class="form-control" id="persentase" name="persentase" placeholder="Persentase Diskon" max="90" min="1" required>
                         </div>
 
                         <div class="form-group">
@@ -34,6 +34,17 @@
                             <label for="name">Tanggal Akhir:</label>
                             <input type="date" class="form-control" id="akhir" name="akhir" required>
                         </div>
+
+                        <div class="form-group">
+                            <label>Genres:</label><br>
+                            @foreach($genres as $genre)
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="genres[]" id="genre_{{ $genre->id_genre }}" value="{{ $genre->id_genre }}">
+                                    <label class="form-check-label" for="genre_{{ $genre->id_genre }}">{{ $genre->nama_genre }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+                        
                         @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
