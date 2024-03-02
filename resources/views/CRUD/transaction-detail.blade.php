@@ -20,32 +20,30 @@
                     <table class="table table-bordered text-center">
                         <thead>
                             <tr>
-                                {{-- <th>No.</th> --}}
                                 <th>No. Transaksi</th>
                                 <th>User</th>
                                 <th>Barang</th>
                                 <th>Jumlah Barang</th>
                                 <th>Harga Jual</th>
+                                <th>Diskon (%)</th> 
                                 <th>Tanggal Transaksi</th>
                             </tr>
                         </thead>
-                        {{-- @php
-                        $no = 1;
-                        @endphp --}}
                         <tbody>
                             @foreach ($data as $detail)
                                 <tr>
-                                    {{-- <td class="align-middle">{{ $no++ }}</td> --}}
                                     <td class="align-middle">{{ $detail->id_transaction }}</td>
-                                    <td class="align-middle">{{ $detail->transaction->user->name ?? 'N/A' }}</td> {{-- Display user's name --}}
-                                    <td class="align-middle">{{ $detail->barang->nama_barang }}</td> {{-- Change made here --}}
+                                    <td class="align-middle">{{ $detail->transaction->user->name ?? 'N/A' }}</td>
+                                    <td class="align-middle">{{ $detail->barang->nama_barang }}</td>
                                     <td class="align-middle">{{ $detail->quantity }}</td>
-                                    <td class="align-middle">Rp. {{ number_format($detail->harga_jual)  }}</td>
+                                    <td class="align-middle">Rp. {{ number_format($detail->harga_jual) }}</td>
+                                    <td class="align-middle">{{ $detail->persentase_diskon }}%</td> <!-- Display discount percentage -->
                                     <td class="align-middle">{{ $detail->transaction->tanggal_transaksi ?? 'N/A' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+
 
                 </div>
             </div>

@@ -61,32 +61,40 @@ public function store(Request $request)
     $addedItemsWithNames = [];
 
     foreach ($items as $item) {
-        DetailTransaction::create([
-            'id_transaction' => $transaction->id_transaction,
-            'id_barang' => $item['id'],
-            'quantity' => $item['quantity'],
-            'harga_jual' => $item['harga'],
-        ]);
+        $barang = Barang::with(['genres.diskons'])->find($item['id']);
 
-        $barang = Barang::find($item['id']);
         if ($barang) {
-            $barang->decrement('stok', $item['quantity']);
-
-
             $originalPrice = $barang->harga;
-            $discountAmount = $originalPrice - $item['harga'];
+            $applicableDiscount = $barang->findApplicableDiscount();
+            $discountPercentage = $applicableDiscount ? $applicableDiscount->persentase_diskon : 0;
+
+            $discountAmount = ($originalPrice * $discountPercentage) / 100;
+            $hargaJual = $originalPrice - $discountAmount;
+
+            DetailTransaction::create([
+                'id_transaction' => $transaction->id_transaction,
+                'id_barang' => $item['id'],
+                'quantity' => $item['quantity'],
+                'harga_jual' => $hargaJual,
+                'persentase_diskon' => $discountPercentage, 
+            ]);
+
+            $barang->decrement('stok', $item['quantity']);
 
             $addedItemsWithNames[] = [
                 'name' => $barang->nama_barang,
                 'quantity' => $item['quantity'],
-                'harga' => $item['harga'],
+                'harga' => $hargaJual,
                 'original_price' => $originalPrice,
                 'discount_amount' => $discountAmount,
+                'discount_percentage' => $discountPercentage,
             ];
         }
     }
 
-    $totalHarga = array_sum(array_column($addedItemsWithNames, 'harga', 'quantity'));
+    $totalHarga = array_sum(array_map(function($item) {
+        return $item['harga'] * $item['quantity'];
+    }, $addedItemsWithNames));
 
     $userName = Auth::user()->name;
     $tanggalTransaksi = $transaction->tanggal_transaksi->format('d-m-Y');
@@ -98,6 +106,8 @@ public function store(Request $request)
 
     return redirect()->route('nota')->with('success', 'Transaction successful!');
 }
+
+
 
 
     public function search(Request $request)

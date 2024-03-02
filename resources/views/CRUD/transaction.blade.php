@@ -6,7 +6,6 @@
             position: relative;
             display: inline-block;
         }
-
         .sold-out-overlay {
             position: absolute;
             top: 0;
@@ -40,13 +39,11 @@
             justify-content: center;
             padding: 20px;
         }
-
         .search-bar-form {
             display: flex;
             width: 100%;
             max-width: 600px;
         }
-
         .form-control.search-input {
             width: 100%;
             padding: 10px 20px;
@@ -56,7 +53,6 @@
             border-radius: 5px 0 0 5px;
             outline: none;
         }
-
         .search-button {
             padding: 10px 20px;
             background-color: #007bff;
@@ -67,26 +63,21 @@
             font-size: 16px;
             transition: background-color 0.3s ease;
         }
-
         .search-button:hover {
             background-color: #0056b3;
         }
-
         @media (max-width: 768px) {
             .form-control.search-input, .search-button {
                 font-size: 14px;
                 padding: 8px 16px;
             }
         }
-
         .button-minus:not(:disabled) {
             background-color: #f56565;
         }
-
         .button-minus:not(:disabled):hover {
             background-color: #c53030;
         }
-
         .button-plus:not(:disabled) {
             background-color: #4299e1;
         }
@@ -230,7 +221,7 @@
         }
 
         // Fungsi ini digunakan untuk menambahkan atau mengurangi barang ke dalam keranjang
-        function tambahkanAtauKurangiBarang(id, nama, harga, stok, isAdding) {
+        function tambahkanAtauKurangiBarang(id, nama, harga, stok, isAdding, id_diskon) {
             // Mencari index barang dalam array berdasarkan nama
             const existingItemIndex = addedItems.findIndex(item => item.nama === nama);
             // Jika barang sudah ada dalam array
@@ -260,7 +251,7 @@
             } else {
                 // Jika barang belum ada dalam array dan aksi adalah menambahkan
                 if (isAdding) {
-                    addedItems.push({ id, nama, harga, quantity: 1, totalHarga: harga });
+                    addedItems.push({ id, nama, harga, quantity: 1, totalHarga: harga, });
                 } else {
                     // Jika barang belum ada dalam keranjang dan aksi adalah mengurangi, tampilkan pesan error
                     Swal.fire({
@@ -324,7 +315,6 @@
 
             document.getElementById('totalHarga').textContent = `Rp ${totalHarga.toLocaleString()}`;
 
-            // Enable or disable the Uang Diberikan input based on the addedItems array
             const uangDiberikanInput = document.getElementById('uang_diberikan');
             if (addedItems.length > 0) {
                 uangDiberikanInput.disabled = false;
@@ -408,7 +398,7 @@
             confirmButtonText: 'OK'
         }).then((result) => {
             if (result.value) {
-                window.location.href = '/nota'; 
+                window.location.href = '/nota';
             }
         });
     @endif
